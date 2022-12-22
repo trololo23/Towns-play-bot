@@ -35,11 +35,11 @@ class RegState(StatesGroup):
 
 @dp.message_handler(commands=["reggame"])
 async def start_game(message): 
-    await RegState.active.set()
     id = message.chat.id
     if UserData.CheckState(id) == True:
         await bot.send_message(message.chat.id, "Спачатку завяршыце старую гульню")
     else:
+        await RegState.active.set()
         UserData.AddChatGame(id)
         await bot.send_message(message.chat.id, "Увядзіце колькасць удзельнікаў")
 
@@ -47,21 +47,21 @@ async def start_game(message):
 async def get_players_numb(message: types.Message, state: FSMContext):
     id = message.chat.id
     UserData.AddPlayersNumb(id, int(message.text))
-    await bot.send_message(message.chat.id, "Чтобы добавиться в игру вызови метод  /addme")
+    await bot.send_message(message.chat.id, "Каб дадацца ў гульню выкліч метад /addme")
     await state.finish()
 
 @dp.message_handler(commands=["addme"])
 async def add_player(message):
     id = message.chat.id
     if UserData.CheckState(id) == False:
-        await bot.send_message(message.chat.id, "Сначала зарегистрируйте игру")
+        await bot.send_message(message.chat.id, "Спачатку зарэгіструйце гульню")
         return   
     if UserData.Check(id) ==  True:
         UserData.AddUser(id, message.from_user.id) 
         if UserData.Check(id) == False:
             UsedTowns.Start(id)
             UsedTowns.Add(id, 'Minsk')
-            await bot.send_message(message.chat.id, "Игра началась! Для хода используйте /nextturn Первый город Minsk")
+            await bot.send_message(message.chat.id, "Гульня пачалася! Для ходу выкарыстоўвайце /nextturn\nНазвы неабходна пісаць на англійскай мове\nПершы горад Minsk")
     else:
         await bot.send_message(message.chat.id, "Места закончились")
 
@@ -70,12 +70,12 @@ class NextTurn(StatesGroup):
 
 @dp.message_handler(commands=["nextturn"])
 async def make_turn(message):
-    await NextTurn.active.set()
     id = message.chat.id
     if UserData.CheckState(id) == False:
-        await bot.send_message(message.chat.id, "Сначала зарегистрируйте игру")
+        await bot.send_message(message.chat.id, "Спачатку зарэгіструйце гульню")
         return
-    await bot.send_message(message.chat.id, "Введи город на " + UsedTowns.GetLetter(id))
+    await NextTurn.active.set()
+    await bot.send_message(message.chat.id, "Увядзі горад на " + UsedTowns.GetLetter(id).upper())
 
 @dp.message_handler(state=NextTurn.active, content_types=types.ContentType.all())
 async def accept_town(message: types.Message, state: FSMContext):
@@ -84,11 +84,11 @@ async def accept_town(message: types.Message, state: FSMContext):
     if UserData.CheckTurn(id, message.from_user.id) == False:
         await bot.send_message(message.chat.id, "Не твой ход браток")
     elif UsedTowns.CheckCorrectLetter(id, town_name) == False:
-        await bot.send_message(message.chat.id, "Неверная буква")
+        await bot.send_message(message.chat.id, "Няправільная літара")
     elif UsedTowns.Find(id, town_name) == True:
-        await bot.send_message(message.chat.id, "Город уже использован")
+        await bot.send_message(message.chat.id, "Горад ужо выкарыстаны")
     elif DataTowns.Search(town_name) == False:
-        await bot.send_message(message.chat.id, "Такого города не существует")
+        await bot.send_message(message.chat.id, "Такога горада не існуе")
     else:
         UserData.NextStep(id)
         UsedTowns.Add(id, town_name)
@@ -98,7 +98,10 @@ async def accept_town(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=["endgame"])
 async def end_game(message):
-    await bot.send_message(message.chat.id, "Игра завершена!")
+    if UserData.CheckState(id) == False:
+        await bot.send_message(message.chat.id, "Спачатку зарэгіструйце гульню")
+        return
+    await bot.send_message(message.chat.id, "Гульня завершана!")
     UsedTowns.Clear()
     UserData.Clear()
 

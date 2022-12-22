@@ -2,18 +2,6 @@ import pickle
 import csv
 from enum import Enum, auto
 
-class States(Enum):
-  game_on = 1
-  game_off = 0
-
-
-class AddVerdict(Enum):
-  NotExist = auto()
-  AlreadyUsed = auto()
-  Added = auto()
-  WrongLetter = auto()
-
-
 #Operates with registered users
 class UsersData:
     
@@ -121,4 +109,3 @@ class DataBaseTowns:
           if row[0] == town_name:
             return True
         return False
-        
