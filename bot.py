@@ -9,9 +9,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from aiogram.utils import executor
 
-from Data_Logic import UsedTownsData
-from Data_Logic import UsersData
-from Data_Logic import DataBaseTowns
+from data_logic import UsedTownsData
+from data_logic import UsersData
+from data_logic import DataBaseTowns
 
 UsedTowns = UsedTownsData() #Operates with towns used during game
 DataTowns = DataBaseTowns() #Operates with towns database
@@ -47,7 +47,7 @@ async def start_game(message):
 async def get_players_numb(message: types.Message, state: FSMContext):
     id = message.chat.id
     UserData.AddPlayersNumb(id, int(message.text))
-    await bot.send_message(message.chat.id, "Каб дадацца ў гульню выкліч метад /addme")
+    await bot.send_message(message.chat.id, "Каб дадацца ў гульню выкліч метад  /addme")
     await state.finish()
 
 @dp.message_handler(commands=["addme"])
@@ -98,12 +98,13 @@ async def accept_town(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=["endgame"])
 async def end_game(message):
+    id = message.chat.id
     if UserData.CheckState(id) == False:
         await bot.send_message(message.chat.id, "Спачатку зарэгіструйце гульню")
         return
     await bot.send_message(message.chat.id, "Гульня завершана!")
-    UsedTowns.Clear()
-    UserData.Clear()
+    UsedTowns.Clear(id)
+    UserData.Clear(id)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
