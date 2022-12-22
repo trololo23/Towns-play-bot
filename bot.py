@@ -63,7 +63,7 @@ async def add_player(message):
             UsedTowns.Add(id, 'Minsk')
             await bot.send_message(message.chat.id, "Гульня пачалася! Для ходу выкарыстоўвайце /nextturn\nНазвы неабходна пісаць на англійскай мове\nПершы горад Minsk")
     else:
-        await bot.send_message(message.chat.id, "Места закончились")
+        await bot.send_message(message.chat.id, "Месцы скончыліся")
 
 class NextTurn(StatesGroup):
 	active = State()
