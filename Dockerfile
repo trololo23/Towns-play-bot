@@ -7,5 +7,7 @@ RUN apt-get install -y python3-pip
 
 RUN pip install aiogram
 
+RUN pip install redis
+
 COPY . .
 CMD ["python3", "bot.py"]
